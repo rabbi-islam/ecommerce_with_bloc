@@ -18,9 +18,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       try{
         emit(LoginLoading());
         final user = await repository.signInWithGoogle();
-        debugPrint('User: ${user?.displayName}');
-
-        emit(LoginSuccess());
+        if(user != null){
+          debugPrint('User: ${user.displayName}');
+          emit(LoginSuccess());
+        }
       }catch(e){
         debugPrint(e.toString());
         emit(LoginFailed('Found error => ${e.toString()}'));
@@ -28,3 +29,4 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     });
   }
 }
+
