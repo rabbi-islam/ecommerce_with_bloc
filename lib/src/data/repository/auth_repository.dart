@@ -1,3 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecommerce_with_bloc/src/data/model/user_model.dart';
+import 'package:ecommerce_with_bloc/src/data/preference/local_preference.dart';
+import 'package:ecommerce_with_bloc/src/utils/asset_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +12,8 @@ class AuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Initialize GoogleSignIn with client ID
   Future<void> initializeGoogleSignIn() async {
@@ -38,11 +44,53 @@ class AuthRepository {
 
       final userCredential = await _auth.signInWithCredential(credential);
 
+      if (userCredential.user != null) {
+        await createUserInFireStore(userCredential.user!, null);
+      }
+
       return userCredential.user;
     } catch (e) {
       debugPrint("Google sign-in error: $e");
       return null;
     }
+  }
+
+  /// Sign in email
+  Future<User?> signInWithEmail(String email, String password) async{
+    try{
+      final credential = await _auth.signInWithEmailAndPassword(email:email, password:password);
+      final user = credential.user;
+
+      LocalPreferences.setString("username", user?.displayName ?? "Unknown");
+      LocalPreferences.setString("email", user?.email ?? '');
+      LocalPreferences.setString("photoUrl", user?.photoURL ?? AssetManager.THUMBNAIL_PLACEHOLDER);
+      LocalPreferences.setString("phoneNumber", user?.phoneNumber ?? '');
+
+      return credential.user;
+
+    }catch(e){
+      debugPrint('Error: $e');
+      throw Exception(e);
+    }
+  }
+
+  Future<void> createUserInFireStore(User user, String? username) async {
+    final data = UserModel(
+      userName: user.displayName ?? username,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      photoUrl: user.photoURL,
+    );
+    await _firestore.collection('users').doc(user.uid).set(data.toJson()).then((
+      value,
+    ) {
+      debugPrint("User Added Successfully: ${user.uid}");
+    });
+
+    LocalPreferences.setString("username", user.displayName ?? username ?? "Unknown");
+    LocalPreferences.setString("email", user.email ?? '');
+    LocalPreferences.setString("photoUrl", user.photoURL ?? AssetManager.THUMBNAIL_PLACEHOLDER);
+    LocalPreferences.setString("phoneNumber", user.phoneNumber ?? '');
   }
 
   Future<void> signOut() async {
@@ -51,4 +99,28 @@ class AuthRepository {
   }
 
   User? getCurrentUser() => _auth.currentUser;
+
+  Future<User?> signUpWithEmail(String email, String password, String username) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final user = credential.user;
+      if (user != null) {
+        await createUserInFireStore(user, username);
+      }
+      return user;
+    } on FirebaseAuthException catch (e) {
+      debugPrint("Signup With Email FirebaseAuthException: ${e.message}");
+      throw Exception(e.message);
+    } catch (e) {
+      debugPrint("Signup With Email Other Error: $e");
+      throw Exception("Something went wrong");
+    }
+  }
+
+
+
+
 }

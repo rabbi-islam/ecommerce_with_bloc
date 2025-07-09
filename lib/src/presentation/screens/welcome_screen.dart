@@ -1,6 +1,7 @@
 import 'package:ecommerce_with_bloc/src/routes/route_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:social_login_buttons/social_login_buttons.dart';
@@ -10,6 +11,7 @@ import '../widgets/widgets.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,11 @@ class WelcomeScreen extends StatelessWidget {
 
             BlocConsumer<LoginBloc, LoginState>(
               listener: (context, state) {
-                // TODO: implement listener
+               if(state is LoginSuccess){
+                 Fluttertoast.showToast(msg: "Login Successful",toastLength: Toast.LENGTH_SHORT);
+                 Future.delayed(Duration(milliseconds: 300));
+                 context.goNamed(Routes.HOME_ROUTE);
+               }
               },
               builder: (context, state) {
 
@@ -89,7 +95,10 @@ class WelcomeScreen extends StatelessWidget {
                   ],
                 ),
                 FullWidthButton(
-                  onTap: () => context.pushNamed(Routes.REGISTER_ROUTE),
+                  onTap: (){
+                    print("hu");
+                     context.pushNamed(Routes.REGISTER_ROUTE);
+                  },
                   buttonText: "Create An Account",
                 ),
               ],
