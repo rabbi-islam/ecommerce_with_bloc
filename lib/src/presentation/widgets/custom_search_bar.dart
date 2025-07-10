@@ -14,7 +14,7 @@ class CustomSearchBar extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       height: kBottomNavigationBarHeight,
-      padding: EdgeInsets.symmetric(horizontal: layout.width * 0.05),
+      padding: EdgeInsets.symmetric(horizontal: layout.width * 0.04),
       child: Row(
         children: [
           Expanded(
