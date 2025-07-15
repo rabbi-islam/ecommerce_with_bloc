@@ -37,5 +37,6 @@ final List<ProductModel> dummyProducts = [
           Color: As given picture
           Size- M, L, XL
           """,
+    productId: '',
   ),
 ];

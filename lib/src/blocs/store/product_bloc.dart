@@ -18,5 +18,18 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         emit(ProductFetchFailed("Product Fetch Failed: ${e.toString()}"));
       }
     });
+
+    on<FetchSingleProduct>((event, emit) async {
+      try{
+        final product = await productRepository.fetchSingleProduct(event.productId);
+        if(product != null){
+          emit(SingleProductFetchSuccess(product));
+        }else{
+          emit(ProductFetchFailed("Product Fetch Failed"));
+        }
+      }catch(e){
+        emit(ProductFetchFailed("Product Fetch Failed: ${e.toString()}"));
+      }
+    });
   }
 }

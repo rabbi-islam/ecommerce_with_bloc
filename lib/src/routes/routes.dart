@@ -6,5 +6,6 @@ class Routes {
   static const String LOGIN_ROUTE = '/login';
   static const String REGISTER_ROUTE = '/register';
   static const String WELCOME_ROUTE = '/welcome';
+  static const String PRODUCT_DETAILS_ROUTE = '/product-details';
 
 }

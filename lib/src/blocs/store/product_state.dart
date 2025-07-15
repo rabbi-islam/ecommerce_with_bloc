@@ -27,5 +27,16 @@ final class ProductFetchFailed extends ProductState {
   List<Object?> get props => [message];
 }
 
+//single product fetch section
+final class SingleProductFetchSuccess extends ProductState {
+  final ProductModel product;
+
+  const SingleProductFetchSuccess(this.product);
+
+  @override
+  List<Object?> get props => [product];
+}
+
+
 
 
